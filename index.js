@@ -9,7 +9,7 @@ const results = document.querySelector('#results');
 
 numbtn.forEach((num) => {
     num.addEventListener("click", () => {
-        if ((inputTxt.textContent + num.value).length < 16) {
+        if ((inputTxt.textContent + num.value).length < 20) {
             inputTxt.textContent += num.value;
         }
         else {
@@ -25,8 +25,8 @@ opbtn.forEach((btn) => {
     btn.addEventListener('click', () => {
 
         console.log(value)
-        if ((inputTxt.textContent + btn.value).length < 16) {
-            inputTxt.textContent += `${btn.value}`;
+        if ((inputTxt.textContent + btn.value).length < 20) {
+            inputTxt.textContent += ` ${btn.value} `;
         }
         else {
             alert("fu")
@@ -59,10 +59,14 @@ actt.forEach((btn) => {
         }
     });
 });
+
+
 function calculate(a) {
-    let arrexp = a.split("");
-    return (evaluate(arrexp));
+    let arrexp = a.split(" ");
+    let pfex = topostfix(arrexp);
+    return Math.floor(eval(pfex));
 }
+
 
 function isoperator(a) {
     if (a == '/' || a == '-' || a == '%' || a == "+" || a == '*') {
@@ -70,42 +74,127 @@ function isoperator(a) {
     }
 }
 
-function evaluate(arrexp) {
-    let expn = [];
-    expn = arrexp;
-    console.log(expn);
-    let ans = 0;
-    ans = expn[0];
-    expn.forEach(element => {
-        if (isoperator(element)) {
-            index = expn.indexOf(element);
-            b = expn[index + 1];
-            if (element == '+') {
-                ans=add(ans,b);
+
+function topostfix(arrexp) {
+    //put into  postfix array
+    let arop = [];
+    let postfix = [];
+
+    arrexp.forEach(element => {// 6,/,5,-6*2/6
+        if (isoperator(element)) {// - =true
+            // console.log("IS OPERATOR :" + element);
+            // arop.push(element);
+
+            let prec_elem = precedence(element);
+            let prev_elem = 0;
+            prev_elem = (arop[(arop.length) - 1]);
+
+            console.log("PREV :" + prev_elem);
+            if (!prev_elem) {
+                arop.push(element);
             }
-            else if (element == '*') {
-                ans = mun(ans, b);
+            else if (isoperator(prev_elem)) {
+
+                let prec_prev_elem = precedence(prev_elem);
+
+                if (prec_elem > prec_prev_elem) {
+                    arop.push(element);
+                    console.log(arop);
+                }
+                else {
+                    console.log("arop ini");
+                    console.log(arop);
+                    let poped = arop.pop();
+                    console.log("arop aft pop");
+                    console.log(arop);
+                    postfix.push(poped);
+                    console.log("in postfix" + element);
+                    arop.push(element);
+                    console.log("arop after push");
+                    console.log(arop);
+                }
 
             }
-            else if (element == '/') {
-
-                ans = div(ans, b);
-            }
-            else if (element == '-'){
-
-                ans = sub(ans, b);
-            }
-            else if (element == '%'){
-
-                ans = rem(ans, b);
-            }
-            else
-                ans = "error"
+        }
+        else {
+            // console.log("NOT OPERATOR : " + element)
+            postfix.push(element);
         }
     });
 
-    return ans;
+    for (let i = (arop.length - 1); i >= 0; i--) {
+        console.log(arop);
+        postfix.push(arop[i]);
+    }
+
+    return postfix;//6,5,/,
+    //Array(9) [ "6", "5", "/", "6", "2", "6", "/", "*", "-" ]
+
 }
+
+
+function precedence(a) {
+    if(a=="%"){
+        return 3;
+    }
+    else if (a == "/" || a == '*') {
+        return 2;
+    }
+    else if (a == "+" || a == "-") {
+        return 1;
+    }
+    else {
+        return 0;
+    }
+
+}
+
+
+function eval(arr) {
+    let pfex=[];
+    pfex=arr;
+    console.log(pfex)
+    let stack=[];
+    let ans=0;
+    pfex.forEach(element => {
+        if (!isoperator(element)) {
+            stack.push(element);
+        }
+        else{
+            let b=stack.pop();
+            let a=stack.pop();
+            switch (element) {
+                case "+":
+                    ans=add(a,b);
+                    stack.push(ans);
+                    break;
+                case "-":
+                    ans=sub(a,b);
+                    stack.push(ans);
+                    break;
+                case "*":
+                    ans=mun(a,b);
+                    stack.push(ans);
+                    break;
+                case "/":
+                    ans=div(a,b);
+                    stack.push(ans);
+                    break;
+                case "%":
+                    ans=rem(a,b);
+                    stack.push(ans);
+                    break;
+                default:
+                    break;
+            }
+        }
+    });
+    let tans=stack[0];
+    return tans;
+    
+}
+
+
 function add(a, b) {
     return +a + +b;
 }
