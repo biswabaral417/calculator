@@ -59,14 +59,10 @@ actt.forEach((btn) => {
         }
     });
 });
-
-
 function calculate(a) {
     let arrexp = a.split("");
-    let pfex = topostfix(arrexp);
-    return Math.floor(eval(pfex));
+    return (evaluate(arrexp));
 }
-
 
 function isoperator(a) {
     if (a == '/' || a == '-' || a == '%' || a == "+" || a == '*') {
@@ -74,147 +70,44 @@ function isoperator(a) {
     }
 }
 
-
-function topostfix(arrexp) {
-    //put into  postfix array
-    let arop = [];
-    let postfix = [];
-
-    arrexp.forEach(element => {// 6,/,5,-6*2/6
-        if (isoperator(element)) {// - =true
-            // console.log("IS OPERATOR :" + element);
-            // arop.push(element);
-
-            let prec_elem = precedence(element);
-            let prev_elem = 0;
-            prev_elem = (arop[(arop.length) - 1]);
-
-            console.log("PREV :" + prev_elem);
-            if (!prev_elem) {
-                arop.push(element);
-            }
-            else if (isoperator(prev_elem)) {
-
-                let prec_prev_elem = precedence(prev_elem);
-
-                if (prec_elem > prec_prev_elem) {
-                    arop.push(element);
-                    console.log(arop);
-                }
-                else {
-                    console.log("arop ini");
-                    console.log(arop);
-                    let poped = arop.pop();
-                    console.log("arop aft pop");
-                    console.log(arop);
-                    postfix.push(poped);
-                    console.log("in postfix" + element);
-                    arop.push(element);
-                    console.log("arop after push");
-                    console.log(arop);
-                }
-
-            }
-        }
-        else {
-            // console.log("NOT OPERATOR : " + element)
-            postfix.push(element);
-        }
-    });
-
-    for (let i = (arop.length - 1); i >= 0; i--) {
-        console.log(arop);
-        postfix.push(arop[i]);
-    }
-
-    return postfix;//6,5,/,
-    //Array(9) [ "6", "5", "/", "6", "2", "6", "/", "*", "-" ]
-
-}
-
-
-function precedence(a) {
-    if(a=="%"){
-        return 3;
-    }
-    else if (a == "/" || a == '*') {
-        return 2;
-    }
-    else if (a == "+" || a == "-") {
-        return 1;
-    }
-    else {
-        return 0;
-    }
-
-}
-
-
-function eval(arr) {
-    let pfex = [];
-    pfex = arr;
-    console.log("expn ")
-    console.log(pfex);
-    let evaluated = pfex[0];
-    let last_eval_index = 0;
-    pfex.forEach(element => {
-        let index = pfex.indexOf(element);
-        console.log("loop starts ");
-        console.log("lei" + last_eval_index)
-        console.log("index = " + index)
-        let b = pfex[index - 1];
-        let c = pfex[index - 2];
-        console.log("tba t c evaluatedd="+evaluated);
+function evaluate(arrexp) {
+    let expn = [];
+    expn = arrexp;
+    console.log(expn);
+    let ans = 0;
+    ans = expn[0];
+    expn.forEach(element => {
         if (isoperator(element)) {
-            if ((index - 2) == last_eval_index) {
-                console.log("lei" + last_eval_index)
-                c =evaluated;
+            index = expn.indexOf(element);
+            b = expn[index + 1];
+            if (element == '+') {
+                ans=add(ans,b);
             }
-            last_eval_index = index;
-            console.log("lei = " + last_eval_index)
-            console.log("c = " + c);
-            console.log("b = " + b);
-            switch (element) {
-                case '+':
-                    console.log("c jb eval = " + c);
-                    evaluated = add(c, b);
-                    console.log(evaluated);
-                    break;
-                case '*':
-                    console.log("c jb eval = " + c);
-                    evaluated = mun(c, b);
-                    console.log(evaluated);
-                    break;
-                case '/':
-                    console.log("c jb eval = " + c);
-                    evaluated = div(c, b);
-                    console.log(evaluated);
-                    break;
-                case '-':
-                    console.log("c jb eval = " + c);
-                    evaluated = sub(c, b);
-                    console.log(evaluated);
-                    break;
-                case '%':
-                    console.log("c jb eval = " + c);
-                    evaluated = rem(c, b);
-                    console.log(evaluated);
-                    break;
+            else if (element == '*') {
+                ans = mun(ans, b);
 
-                default:
-                    console.log("c jb eval = " + c);
-                    evaluated = 'error';
-                    console.log(evaluated);
-                    break;
             }
+            else if (element == '/') {
+
+                ans = div(ans, b);
+            }
+            else if (element == '-'){
+
+                ans = sub(ans, b);
+            }
+            else if (element == '%'){
+
+                ans = rem(ans, b);
+            }
+            else
+                ans = "error"
         }
     });
-    return evaluated;
+
+    return ans;
 }
-
-
 function add(a, b) {
-    return a + b;
+    return +a + +b;
 }
 function sub(a, b) {
     return a - b;
